@@ -1,23 +1,21 @@
+'use client';
+
 import { useState, ReactNode } from 'react';
 import Sidebar from './sidebar';
 import Navbar from './navbar';
 import Directory from './directory';
 import { ResultProps } from '@/lib/api/user';
 import Toast from '@/components/layout/toast';
-import Meta, { MetaProps } from '@/components/layout/meta';
-import { useRouter } from 'next/router';
-import { LoadingDots } from '@/components/icons';
+import { useRouter } from 'next/navigation';
 import ClusterProvisioning from '@/components/layout/cluster-provisioning';
 
 export default function Layout({
-  meta,
   results,
   totalUsers,
   username,
   clusterStillProvisioning,
   children
 }: {
-  meta: MetaProps;
   results: ResultProps[];
   totalUsers: number;
   username?: string;
@@ -28,14 +26,6 @@ export default function Layout({
 
   const [sidebarOpen, setSidebarOpen] = useState(false);
 
-  if (router.isFallback) {
-    return (
-      <div className="h-screen w-screen flex justify-center items-center bg-black">
-        <LoadingDots color="white" />
-      </div>
-    );
-  }
-
   // You should remove this once your MongoDB Cluster is fully provisioned
   if (clusterStillProvisioning) {
     return <ClusterProvisioning />;
@@ -43,7 +33,6 @@ export default function Layout({
 
   return (
     <div className="w-full mx-auto h-screen flex overflow-hidden bg-black">
-      <Meta props={meta} />
       <Toast username={username} />
       <Sidebar
         sidebarOpen={sidebarOpen}

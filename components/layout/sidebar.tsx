@@ -2,15 +2,15 @@ import { Fragment } from 'react';
 import { Dialog, Transition } from '@headlessui/react';
 import {
   CalendarIcon,
-  CogIcon,
+  Cog6ToothIcon as CogIcon,
   HomeIcon,
   MapIcon,
-  SearchCircleIcon,
-  SpeakerphoneIcon,
+  MagnifyingGlassCircleIcon as SearchCircleIcon,
+  MegaphoneIcon as SpeakerphoneIcon,
   UserGroupIcon,
-  ViewGridAddIcon,
-  XIcon
-} from '@heroicons/react/outline';
+  ViewColumnsIcon as ViewGridAddIcon,
+  XMarkIcon as XIcon
+} from '@heroicons/react/24/outline';
 import Directory from './directory';
 import { ResultProps } from '@/lib/api/user';
 

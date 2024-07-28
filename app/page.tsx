@@ -1,14 +1,19 @@
 import Profile from '@/components/profile';
+import Layout from '@/components/layout';
 import {
   getAllUsers,
-  UserProps,
   getUserCount,
   getFirstUser
 } from '@/lib/api/user';
-import { defaultMetaProps } from '@/components/layout/meta';
+import { Metadata } from 'next';
 import clientPromise from '@/lib/mongodb';
 
 export const revalidate = 10;
+
+export const metadata: Metadata = {
+  title: 'MongoDB Starter Kit',
+  description: 'MongoDB Starter Kit built with Next.js, Vercel, and MongoDB Atlas.',
+};
 
 export default async function Home() {
   try {
@@ -25,9 +30,9 @@ export default async function Home() {
   const totalUsers = await getUserCount();
   const user = await getFirstUser();
 
-  return <Profile user={user} settings={false} />;
-}
-
-export async function generateMetadata() {
-  return defaultMetaProps;
+  return (
+    <Layout results={results} totalUsers={totalUsers} username={user.username}>
+      <Profile user={user} settings={false} />
+    </Layout>
+  );
 }

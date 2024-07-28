@@ -42,18 +42,26 @@ Tincidunt quam neque in cursus viverra orci, dapibus nec tristique. Nullam ut si
 Et vivamus lorem pulvinar nascetur non. Pulvinar a sed platea rhoncus ac mauris amet. Urna, sem pretium sit pretium urna, senectus vitae. Scelerisque fermentum, cursus felis dui suspendisse velit pharetra. Augue et duis cursus maecenas eget quam lectus. Accumsan vitae nascetur pharetra rhoncus praesent dictum risus suspendisse.`;
 
 export async function getUser(username: string): Promise<UserProps | null> {
-  const client = await clientPromise;
-  const collection = client.db('db_madhukar_19250').collection('users');
-  const results = await collection.findOne<UserProps>(
-    { username },
-    { projection: { _id: 0, emailVerified: 0 } }
-  );
-  if (results) {
-    return {
-      ...results,
-      bioMdx: await getMdxSource(results.bio || placeholderBio)
-    };
-  } else {
+  try {
+    const client = await clientPromise;
+    const collection = client.db('db_madhukar_19250').collection('users');
+    console.log(`Searching for user: ${username}`);
+    const results = await collection.findOne<UserProps>(
+      { username },
+      { projection: { _id: 0, emailVerified: 0 } }
+    );
+    if (results) {
+      console.log(`User found: ${JSON.stringify(results)}`);
+      return {
+        ...results,
+        bioMdx: await getMdxSource(results.bio || placeholderBio)
+      };
+    } else {
+      console.log(`User not found: ${username}`);
+      return null;
+    }
+  } catch (error) {
+    console.error(`Error in getUser: ${error}`);
     return null;
   }
 }
@@ -119,93 +127,14 @@ export async function getAllUsers(): Promise<ResultProps[]> {
     .toArray();
 }
 
-export async function searchUser(query: string): Promise<UserProps[]> {
-  const client = await clientPromise;
-  const collection = client.db('test').collection('users');
-  return await collection
-    .aggregate<UserProps>([
-      {
-        $search: {
-          index: 'name-index',
-          /* 
-          name-index is a search index as follows:
-
-          {
-            "mappings": {
-              "fields": {
-                "followers": {
-                  "type": "number"
-                },
-                "name": {
-                  "analyzer": "lucene.whitespace",
-                  "searchAnalyzer": "lucene.whitespace",
-                  "type": "string"
-                },
-                "username": {
-                  "type": "string"
-                }
-              }
-            }
-          }
-
-          */
-          text: {
-            query: query,
-            path: {
-              wildcard: '*' // match on both name and username
-            },
-            fuzzy: {},
-            score: {
-              // search ranking algorithm: multiply relevance score by the log1p of follower count
-              function: {
-                multiply: [
-                  {
-                    score: 'relevance'
-                  },
-                  {
-                    log1p: {
-                      path: {
-                        value: 'followers'
-                      }
-                    }
-                  }
-                ]
-              }
-            }
-          }
-        }
-      },
-      {
-        // filter out users that are not verified
-        $match: {
-          verified: true
-        }
-      },
-      // limit to 10 results
-      {
-        $limit: 10
-      },
-      {
-        $project: {
-          _id: 0,
-          emailVerified: 0,
-          score: {
-            $meta: 'searchScore'
-          }
-        }
-      }
-    ])
-    .toArray();
-}
-
 export async function getUserCount(): Promise<number> {
   const client = await clientPromise;
-  const collection = client.db('test').collection('users');
+  const collection = client.db('db_madhukar_19250').collection('users');
   return await collection.countDocuments();
 }
 
 export async function updateUser(username: string, bio: string) {
   const client = await clientPromise;
-  const collection = client.db('test').collection('users');
+  const collection = client.db('db_madhukar_19250').collection('users');
   return await collection.updateOne({ username }, { $set: { bio } });
 }

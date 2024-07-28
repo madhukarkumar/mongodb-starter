@@ -1,52 +1,38 @@
+import { getUser, getAllUsers, UserProps, getUserCount } from '@/lib/api/user';
 import { notFound } from 'next/navigation';
-import { defaultMetaProps } from '@/components/layout/meta';
-import { getUser, getAllUsers, getUserCount } from '@/lib/api/user';
 import Profile from '@/components/profile';
-import clientPromise from '@/lib/mongodb';
+import Layout from '@/components/layout';
+import { Metadata } from 'next';
 
-export const dynamicParams = true;
-
-export async function generateStaticParams() {
-  try {
-    await clientPromise;
-  } catch (e: any) {
-    return [];
-  }
-
-  const results = await getAllUsers();
-  return results.flatMap(({ users }) =>
-    users.map((user) => ({ username: user.username }))
-  );
-}
-
-export async function generateMetadata({ params }: { params: { username: string } }) {
+export async function generateMetadata({ params }: { params: { username: string } }): Promise<Metadata> {
   const user = await getUser(params.username);
   if (!user) {
-    return {};
+    return {
+      title: 'User Not Found',
+      description: 'The requested user profile could not be found.',
+    };
   }
 
   const ogUrl = `https://mongodb.vercel.app/${user.username}`;
   return {
-    ...defaultMetaProps,
     title: `${user.name}'s Profile | MongoDB Starter Kit`,
+    description: user.bio || `${user.name}'s profile on MongoDB Starter Kit`,
     openGraph: {
+      title: `${user.name}'s Profile | MongoDB Starter Kit`,
+      description: user.bio || `${user.name}'s profile on MongoDB Starter Kit`,
+      url: ogUrl,
       images: [`https://api.microlink.io/?url=${ogUrl}&screenshot=true&meta=false&embed=screenshot.url`],
-      url: `https://mongodb.vercel.app/${user.username}`
-    }
+    },
+    twitter: {
+      card: 'summary_large_image',
+      title: `${user.name}'s Profile | MongoDB Starter Kit`,
+      description: user.bio || `${user.name}'s profile on MongoDB Starter Kit`,
+      images: [`https://api.microlink.io/?url=${ogUrl}&screenshot=true&meta=false&embed=screenshot.url`],
+    },
   };
 }
 
 export default async function UserProfile({ params }: { params: { username: string } }) {
-  try {
-    await clientPromise;
-  } catch (e: any) {
-    if (e.code === 'ENOTFOUND') {
-      return <div>Cluster is still provisioning. Please try again later.</div>;
-    } else {
-      throw new Error(`Connection limit reached. Please try again later.`);
-    }
-  }
-
   const user = await getUser(params.username);
   if (!user) {
     notFound();
@@ -55,7 +41,18 @@ export default async function UserProfile({ params }: { params: { username: stri
   const results = await getAllUsers();
   const totalUsers = await getUserCount();
 
-  return <Profile user={user} settings={false} />;
+  return (
+    <Layout results={results} totalUsers={totalUsers} username={user.username}>
+      <Profile user={user} settings={false} />
+    </Layout>
+  );
 }
 
-export const revalidate = 10;
+export async function generateStaticParams() {
+  const users = await getAllUsers();
+  return users.flatMap(({ users }) =>
+    users.map((user) => ({ username: user.username }))
+  );
+}
+
+export const dynamicParams = true;
