@@ -3,12 +3,12 @@ import { Metadata, Viewport } from 'next';
 import ClientSessionProvider from '@/components/ClientSessionProvider';
 
 export const metadata: Metadata = {
-  title: 'MongoDB Starter Kit',
-  description: 'MongoDB Starter Kit built with Next.js, Vercel, and MongoDB Atlas.',
+  title: 'SingleStore Starter Kit',
+  description: 'SingleStore starter built with Next.js, Vercel, and MongoDB Atlas compatible APIs.',
   metadataBase: new URL('https://mongodb.vercel.app'),
   openGraph: {
     title: 'MongoDB Starter Kit',
-    description: 'MongoDB Starter Kit built with Next.js, Vercel, and MongoDB Atlas.',
+    description: 'SingleStore starter built with Next.js, Vercel, and Mongodb Atlas compatible APIs.',
     url: 'https://mongodb.vercel.app',
     siteName: 'MongoDB Starter Kit',
     images: [

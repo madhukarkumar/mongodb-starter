@@ -1,7 +1,7 @@
 import { Metadata } from 'next';
 
 export const metadata: Metadata = {
-  title: '404 | MongoDB Starter Kit',
+  title: '404 | SingleStore Starter Kit',
   description: 'User not found',
 };
 

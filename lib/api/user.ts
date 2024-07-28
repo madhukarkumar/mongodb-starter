@@ -85,6 +85,19 @@ export async function getFirstUser(): Promise<UserProps | null> {
   }
 }
 
+// Search for users by name or username
+export async function searchUser(query: string): Promise<UserProps[]> {
+  const client = await clientPromise;
+  const collection = client.db('db_madhukar_19250').collection('users');
+  return await collection.find<UserProps>(
+    { $or: [
+      { name: { $regex: query, $options: 'i' } },
+      { username: { $regex: query, $options: 'i' } }
+    ]},
+    { projection: { _id: 0, emailVerified: 0 } }
+  ).toArray();
+}
+
 export async function getAllUsers(): Promise<ResultProps[]> {
   const client = await clientPromise;
   const collection = client.db('db_madhukar_19250').collection('users');
